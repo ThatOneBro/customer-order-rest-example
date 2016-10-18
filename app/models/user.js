@@ -60,7 +60,7 @@ userSchema.methods.updateUserData = function(data, done){
 		this[prop] = data[prop];
 	}
 	
-	this.save(function(err){
+	this.save(function(err, user){
 		if(err){
 			console.log(err);
 			return done(err);
@@ -79,3 +79,5 @@ userSchema.methods.generateToken = function(){
 	});
 	return token;
 };
+
+module.exports = mongoose.model('User', userSchema);
