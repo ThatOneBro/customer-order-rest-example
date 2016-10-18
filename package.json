@@ -1,0 +1,27 @@
+{
+  "name": "cust-order-rest-example",
+  "version": "0.0.0",
+  "description": "RESTful API to interact with customer order info database.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThatOneBro/customer-order-rest-example.git"
+  },
+  "author": "Derrick Farris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ThatOneBro/customer-order-rest-example/issues"
+  },
+  "homepage": "https://github.com/ThatOneBro/customer-order-rest-example#readme",
+  "dependencies": {
+    "bcryptjs": "^2.3.0",
+    "express": "^4.14.0",
+    "mongoose": "^4.6.4",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.1.0",
+    "passport-local": "^1.0.0"
+  }
+}
