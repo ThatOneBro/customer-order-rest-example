@@ -20,7 +20,7 @@ require('./app/routes/base_routes.js')(app, passport);
 
 var userRouter = express.Router();
 require('./app/routes/user_routes.js')(userRouter, passport);
-app.use('/user/', userRouter);
+app.use('/user', userRouter);
 
 app.listen(port, function(){
 	console.log('Server listening on port: %s!', port);
