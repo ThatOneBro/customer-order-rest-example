@@ -1,0 +1,3 @@
+curl -H "Content-Type: application/json" -X POST -d '{"firstName": "Bla", "lastName": "Blabla", "company": "blaBla", "address": "123 Blabla St", "zipcode": "75048", "phone": "214-912-9194", "email": "blabla@gmail.com"}' http://localhost:8080/customer
+
+curl -H "Content-Type: application/json" -X POST -d '{"name": "NVidia GTX 850", "unitPrice": 1000}' http://localhost:8080/item

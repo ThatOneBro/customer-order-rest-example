@@ -1,5 +1,9 @@
 var LocalStrategy = require('passport-local');
+var JwtStrategy = require('passport-jwt').Strategy;
+var ExtractJwt = require('passport-jwt').ExtractJwt;
 
+
+var jwtConfig = require('./jwt_config.js');
 var User = require('../app/models/user.js');
 
 module.exports= function(passport){
@@ -52,4 +56,23 @@ module.exports= function(passport){
 			});
 		}
 	));
+	
+	//JWT Config
+	var opts = {};
+	opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+	opts.secretOrKey = jwtConfig.secret;
+	//finish config
+	
+	passport.use('jwt-general', new JwtStrategy(opts,
+	function(jwt_payload, done){
+		User.findById(jwt_payload.id, function(err, user){
+			if(err){
+				return done(err, false);
+			}
+			if(!user){
+				return done(null, false);
+			}
+			return done(null, user);
+		});
+	}));
 }

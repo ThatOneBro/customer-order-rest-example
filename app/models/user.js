@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
 
+var jwtConfig = require('../../config/jwt_config.js');
 var Schema = mongoose.Schema;
 
 var userSchema = Schema({
@@ -20,7 +22,7 @@ userSchema.methods.compareHash = function(password){
 	return bcrypt.compareSync(password, this.passwordHash);
 };
 
-userSchema.methods.getUserData = function(property){
+/* userSchema.methods.getUserData = function(property){
 	var userData = {};
 	if(!property){
 		var thisInJson = this.toJSON();
@@ -43,7 +45,7 @@ userSchema.methods.getUserData = function(property){
 		userData[property] = this[property];
 	}
 	return userData;
-};
+}; */
 
 userSchema.methods.updateUserData = function(data, done){
 	for(var prop in data){
