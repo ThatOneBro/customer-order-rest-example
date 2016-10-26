@@ -1,15 +1,25 @@
+var mongooseQf = require('../../middleware/mongoose_query_filter.js');
+
 module.exports = function(router, Customer){
 	router.get('/', function(req, res){
-		Customer.find({}, function(err, customers){
+		var acceptableFields = ['firstName', 'lastName', 'company', 'address', 'zipcode', 'phone', 'email', 'custId'];
+		var filteredQuery = mongooseQf(acceptableFields, req.query);
+		
+		if(filteredQuery === null){
+			res.status(400).json({'success': false, 'error': 'invalid property or properties in query'});
+			return;
+		}
+		
+		Customer.find(filteredQuery, function(err, customers){
 			if(err){
-				res.json({'success': false, 'error': 'error in request'});
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
 				return;
 			}
 			if(!customers[0]){
-				res.json({'success': false, 'error': 'no customers found'});
+				res.status(404).json({'success': false, 'error': 'no customers found'});
 				return;
 			}
-			res.json({'success': true, 'customers': customers});
+			res.status(200).json({'success': true, 'customers': customers});
 		});
 	});
 	
@@ -26,10 +36,10 @@ module.exports = function(router, Customer){
 		newCustomer.save(function(err){
 			if(err){
 				console.log(err);
-				res.json({'success': false, 'error': 'error saving customer to db'});
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
 				return;
 			}
-			res.json({'success': true});
+			res.status(201).json({'success': true});
 		});
 	});
 	
@@ -38,14 +48,14 @@ module.exports = function(router, Customer){
 		
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
-				res.json({'success': false, 'error': 'error in request'});
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
 				return;
 			}
 			if(!customer){
-				res.json({'success': false, 'error': 'no customer found'});
+				res.status(404).json({'success': false, 'error': 'no customer found'});
 				return;
 			}
-			res.json({'success': true, 'customer': customer});
+			res.status(200).json({'success': true, 'customer': customer});
 		});
 	});
 }

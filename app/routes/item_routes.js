@@ -1,16 +1,26 @@
+var mongooseQf = require('../../middleware/mongoose_query_filter.js');
+
 module.exports = function(router, Item){
 	router.get('/', function(req, res){
-		Item.find({}, function(err, items){
+		var acceptableFields = ['name', 'description', 'category', 'unitPrice', 'itemId'];
+		var filteredQuery = mongooseQf(acceptableFields, req.query);
+		
+		if(filteredQuery === null){
+			res.status(400).json({'success': false, 'error': 'invalid property or properties in query'});
+			return;
+		}
+		
+		Item.find(filteredQuery, function(err, items){
 			if(err){
 				console.log(err);
-				res.json({'success': false, 'error': 'error in request'});
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
 				return;
 			}
 			if(!items[0]){
-				res.json({'success': false, 'error': 'no items found'});
+				res.status(404).json({'success': false, 'error': 'no items found'});
 				return;
 			}
-			res.json({'success': true, 'items': items});
+			res.status(200).json({'success': true, 'items': items});
 		});
 	});
 	
@@ -24,10 +34,10 @@ module.exports = function(router, Item){
 		newItem.save(function(err){
 			if(err){
 				console.log(err);
-				res.json({'success': false, 'error': 'error saving item to db'});
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
 				return;
 			}
-			res.json({'success': true});
+			res.status(201).json({'success': true});
 		});
 	});
 }
