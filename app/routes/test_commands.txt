@@ -3,3 +3,5 @@ curl -H "Content-Type: application/json" -X POST -d '{"firstName": "Bill", "last
 curl -H "Content-Type: application/json" -X POST -d '{"name": "NVidia GTX 850", "unitPrice": 1000}' http://localhost:8080/item
 
 curl -H "Content-Type: application/json" -X POST -d '{"itemsPurchased": [{"itemId": 0, "quantity": 3}]}' http://localhost:8080/customer/0/order
+
+curl -H "Content-Type: application/json" -X PUT -d '{"category":"computer hardware"}' http://localhost:8080/item/0

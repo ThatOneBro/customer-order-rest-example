@@ -120,6 +120,51 @@ module.exports = function(router, Customer, Order, Item){
 		});
 	});
 	
+	router.put('/:custId', function(req, res){
+		var customerId = req.params.custId;
+		
+		Customer.findOne({custId: customerId}, function(err, customer){
+			if(err){
+				console.log(err);
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				return;
+			}
+			if(!customer){
+				res.status(404).json({'success': false, 'error': 'no customer found'});
+				return;
+			}
+			if(req.body.firstName) {customer.firstName = req.body.firstName}
+			if(req.body.lastName) {customer.lastName = req.body.lastName}
+			if(req.body.company) {customer.company = req.body.company}
+			if(req.body.address) {customer.address = req.body.address}
+			if(req.body.zipcode) {customer.zipcode = req.body.zipcode}
+			if(req.body.phone) {customer.phone = req.body.phone}
+			if(req.body.email) {customer.email = req.body.email}
+			
+			customer.save(function(err){
+				if(err){
+					console.log(err);
+					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					return;
+				}
+				res.status(200).json({'success': true});
+			});
+		});
+	});
+	
+	router.delete('/:custId', function(req, res){
+		var customerId = req.params.custId;
+		
+		Customer.findOneAndRemove({custId: customerId}, function(err){
+			if(err){
+				console.log(err);
+				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				return;
+			}
+			res.status(200).json({'success': true});
+		});
+	});
+	
 	router.get('/:custId/order', function(req, res){
 		var customerId = req.params.custId;
 		
