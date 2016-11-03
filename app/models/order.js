@@ -8,7 +8,7 @@ var orderSchema = Schema({
 		ref: 'Customer'
 	},
 	orderDate: {
-		type: Date
+		type: Date,
 		default: Date.now
 	},
 	isPaid: {
@@ -18,7 +18,7 @@ var orderSchema = Schema({
 	datePaid: {
 		type: Date,
 		default: null
-	}
+	},
 	itemsPurchased: {
 		type: [{
 			item: {
@@ -29,10 +29,52 @@ var orderSchema = Schema({
 			itemTotal: Number
 		}]
 	},
-	orderTotal: {
-		type: Number//,
-		//default: (total of all item)
-	}
+	orderTotal: Number
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+orderSchema.methods.calculateTotal = function(done){
+	var items = this.itemsPurchased;
+	var total = 0;
+	function addToTotal(i, self){
+		if(i < items.length){
+			total += items[i].itemTotal;
+			addToTotal(i + 1, self);
+		} else{
+			self.orderTotal = total;
+			return done(null);
+		}
+	}
+	addToTotal(0, this);
+};
+
+orderSchema.methods.markAsPaid = function(){
+	this.isPaid = true;
+	this.datePaid = Date.now;
+};
+
+orderSchema.statics.findWithPopulatedItems = function(filter, done){
+	this.db.model('Order').find(filter).populate({
+		path: 'itemsPurchased.item',
+		populate: {path: 'itemsPurchased.item'}
+	}).exec(function(err, orders){
+		if(err){
+			return done(err);
+		}
+		return done(null, orders);
+	});
+};
+
+orderSchema.statics.findOneWithPopulatedItems = function(custId, orderId, done){
+	this.db.model('Order').findOne({orderId: orderId, customer: custId}).populate({
+		path: 'itemsPurchased.item',
+		populate: {path: 'itemsPurchased.item'}
+	}).exec(function(err, order){
+		if(err)
+			return done(err);
+		if(!order)
+			return done(null, false);
+		return done(null, order);
+	});
+};
+
+module.exports = orderSchema;

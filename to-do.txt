@@ -1,0 +1,11 @@
+Update item by id
+
+update, delete customer
+
+/update order
+
+Add filter for order containing certain items
+
+standarize json responses (imports) "__ not found"
+
+price min and max query strings

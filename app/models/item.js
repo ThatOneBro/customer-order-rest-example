@@ -15,4 +15,8 @@ var itemSchema = Schema({
 	unitPrice: Number
 });
 
+itemSchema.methods.calculateItemTotal = function(numOfItem, done){
+	return done(this.unitPrice * numOfItem);
+}
+
 module.exports = itemSchema;

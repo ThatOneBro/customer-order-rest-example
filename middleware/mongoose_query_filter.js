@@ -1,4 +1,4 @@
-module.exports = function(acceptable, query){
+function filter(acceptable, query, done){
 	function throwTypeException(){
 		throw new TypeError('MongooseQueryFilter requires you to pass in an array of strings');
 	}
@@ -13,7 +13,7 @@ module.exports = function(acceptable, query){
 		throw new TypeError('MongooseQueryFilter requires object as second param');
 	
 	if(!query || query == {})
-		return {};
+		return done(null, {});
 	
 	var acceptableToLower = [];
 	acceptable.forEach(function(field){
@@ -21,7 +21,7 @@ module.exports = function(acceptable, query){
 	});
 	for(var field in query){
 		if(!acceptableToLower.includes(field))
-			return null;
+			return done(null, null);
 	}
 	
 	var filteredQuery = {};
@@ -32,6 +32,7 @@ module.exports = function(acceptable, query){
 		if(query[lowerCaseField])
 			filteredQuery[field] = query[lowerCaseField];
 	});
-	
-	return filteredQuery;
+	return done(null, filteredQuery);
 }
+
+module.exports = {filter: filter};

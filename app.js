@@ -21,6 +21,10 @@ var itemSchema = require('./app/models/item.js');
 itemSchema.plugin(autoIncrement.plugin, {model: 'Item', field: 'itemId'});
 var Item = connection.model('Item', itemSchema);
 
+var orderSchema = require('./app/models/order.js');
+orderSchema.plugin(autoIncrement.plugin, {model: 'Order', field: 'orderId'});
+var Order = connection.model('Order', orderSchema);
+
 require('./config/passport.js')(passport);
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -34,12 +38,16 @@ require('./app/routes/user_routes.js')(userRouter, passport);
 app.use('/user', userRouter);
 
 var customerRouter = express.Router();
-require('./app/routes/customer_routes.js')(customerRouter, Customer);
+require('./app/routes/customer_routes.js')(customerRouter, Customer, Order, Item);
 app.use('/customer', customerRouter);
 
 var itemRouter = express.Router();
 require('./app/routes/item_routes.js')(itemRouter, Item);
 app.use('/item', itemRouter);
+
+var orderRouter = express.Router();
+require('./app/routes/order_routes.js')(orderRouter, Order);
+app.use('/order', orderRouter);
 
 app.listen(port, function(){
 	console.log('Server listening on port: %s!', port);
