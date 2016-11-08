@@ -1,4 +1,5 @@
 var User = require('../models/user.js');
+var responses = require('../../config/json_responses.js');
 
 module.exports = function(router, passport){
 	router.get('/', function(req, res){
@@ -7,7 +8,7 @@ module.exports = function(router, passport){
 	
 	router.get('/token', function(req, res){
 		if(!req.query.email || !req.query.password){
-			res.status(400).json({'success': false, 'error': 'invalid login data'});
+			responses[400].missingFields(res);
 			return;
 		}
 		passport.authenticate('local-login',
@@ -15,23 +16,23 @@ module.exports = function(router, passport){
 			if(user === false){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
-				res.status(401).json({'success': false, 'error': info});
+				responses[401](res, info);
 				return;
 			}
 			User.findById(user._id, function(err, user){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
 				if(!user){
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
-				res.status(200).json({'success': true, 'data': {'token': user.generateToken()}});
+				responses[200].payload(res, {'token': user.generateToken()});
 			});
 		})(req, res);
 	});

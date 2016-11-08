@@ -1,23 +1,24 @@
 var User = require('../models/user.js');
+var responses = require('../../config/json_responses.js');
 
 module.exports = function(router, passport){
 	router.post('/', function(req, res){
 		if(!req.body.email || !req.body.password){
-			res.status(400).json({'success': false, 'error': 'invalid data for new user'});
+			responses[400].missingFields(res);
 			return;
 		}
 		passport.authenticate('local-signup', 
 		function(err, user, info){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(user === false){
-				res.status(409).json({'success': false, 'error': 'email already in use'});
+				responses[409](res, 'email already in use');
 				return;
 			}
-			res.status(201).json({'success': true});
+			responses[201](res);
 		})(req, res);
 	});
 }

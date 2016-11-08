@@ -1,8 +1,6 @@
-/update order
-
 Add filter for order containing certain items
 
-standarize json responses (imports) "__ not found"
+Update items in orders
 
 price min and max query strings
 

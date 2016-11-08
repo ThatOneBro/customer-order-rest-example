@@ -6,7 +6,7 @@ function populateItems(Item, items, done){
 				if(err)
 					return done(err);
 				if(!item)
-					return done(null, false, 'invalid item ID in itemsPurchased');
+					return done(null, false, 'invalid item ID in itemsPurchased field');
 				item.calculateItemTotal(items[i].quantity, function(total){
 					var values = {
 						quantity: items[i].quantity,

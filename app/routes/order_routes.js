@@ -1,4 +1,5 @@
 var mqf = require('../../middleware/mongoose_query_filter.js');
+var responses = require('../../config/json_responses.js');
 
 module.exports = function(router, Order){
 	router.get('/', function(req, res){
@@ -7,24 +8,24 @@ module.exports = function(router, Order){
 		mqf.filter(acceptableFields, req.query, function(err, filter){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(filter === null){
-				res.status(400).json({'success': false, 'error': 'invalid property or properties in query'});
+				responses[400].invalidQuery(res);
 				return;
 			}
 			Order.find(filter, function(err, orders){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
 				if(!orders[0]){
-					res.status(404).json({'success': false, 'error': 'no orders found'});
+					responses[404](res, 'orders');
 					return;
 				}
-				res.status(200).json({'success': true, 'orders': orders});
+				responses[200].payload(res, {'orders': orders});
 			});
 		});
 	});

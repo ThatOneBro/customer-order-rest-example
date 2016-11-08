@@ -47,9 +47,12 @@ orderSchema.methods.calculateTotal = function(done){
 	addToTotal(0, this);
 };
 
-orderSchema.methods.markAsPaid = function(){
+orderSchema.methods.markAsPaid = function(datePaid){
 	this.isPaid = true;
-	this.datePaid = Date.now;
+	if(datePaid)
+		this.datePaid = datePaid;
+	else
+		this.datePaid = Date.now();
 };
 
 orderSchema.statics.findWithPopulatedItems = function(filter, done){

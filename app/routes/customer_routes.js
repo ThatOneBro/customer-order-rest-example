@@ -1,5 +1,6 @@
 var mqf = require('../../middleware/mongoose_query_filter.js');
 var core = require('../../middleware/core_functions.js');
+var responses = require('../../config/json_responses.js');
 
 module.exports = function(router, Customer, Order, Item){
 	router.get('/', function(req, res){
@@ -7,24 +8,24 @@ module.exports = function(router, Customer, Order, Item){
 		mqf.filter(acceptableFields, req.query, function(err, filter){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(filter === null){
-				res.status(400).json({'success': false, 'error': 'invalid property or properties in query'});
+				responses[400].invalidQuery(res);
 				return;
 			}
 			Customer.find(filter, function(err, customers){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
 				if(!customers[0]){
-					res.status(404).json({'success': false, 'error': 'no customers found'});
+					responses[404](res, 'customers');
 					return;
 				}
-				res.status(200).json({'success': true, 'customers': customers});
+				responses[200].payload(res, {'customers': customers});
 			});
 		});
 	});
@@ -42,10 +43,10 @@ module.exports = function(router, Customer, Order, Item){
 		newCustomer.save(function(err){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				res[500](res);
 				return;
 			}
-			res.status(201).json({'success': true});
+			responses[201];
 		});
 	});
 	
@@ -55,14 +56,14 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!customer){
-				res.status(404).json({'success': false, 'error': 'no customer found'});
+				responses[404](res, 'customer');
 				return;
 			}
-			res.status(200).json({'success': true, 'customer': customer});
+			responses[200].payload(res, {'customer': customer});
 		});
 	});
 	
@@ -73,11 +74,11 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!customer){
-				res.status(404).json({'success': false, 'error': 'no customer found'});
+				responses[404](res, 'customer');
 				return;
 			}
 			if(req.body.orderDate){
@@ -90,11 +91,11 @@ module.exports = function(router, Customer, Order, Item){
 			core.populateItems(Item, itemsPurchased, function(err, items, info){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
 				if(!items){
-					res.status(404).json({'success': false, 'error': info});
+					responses.custom404(res, info);
 					return;
 				}
 				var newOrder = new Order({
@@ -104,16 +105,16 @@ module.exports = function(router, Customer, Order, Item){
 				newOrder.calculateTotal(function(err){
 					if(err){
 						console.log(err);
-						res.status(500).json({'success': false, 'error': 'unexpected server error'});
+						responses[500](res);
 						return;
 					}
 					newOrder.save(function(err){
 						if(err){
 							console.log(err);
-							res.status(500).json({'success': false, 'error': 'unexpected server error'});
+							responses[500](res);
 							return;
 						}
-						res.status(201).json({'success': true});
+						responses[201](res);
 					});
 				});
 			});
@@ -126,11 +127,11 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!customer){
-				res.status(404).json({'success': false, 'error': 'no customer found'});
+				responses[404](res, 'customer');
 				return;
 			}
 			if(req.body.firstName) {customer.firstName = req.body.firstName}
@@ -144,10 +145,10 @@ module.exports = function(router, Customer, Order, Item){
 			customer.save(function(err){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
-				res.status(200).json({'success': true});
+				responses[200].noPayload(res);
 			});
 		});
 	});
@@ -158,10 +159,10 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOneAndRemove({custId: customerId}, function(err){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
-			res.status(200).json({'success': true});
+			responses[200].noPayload(res);
 		});
 	});
 	
@@ -171,11 +172,11 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!customer){
-				res.status(404).json({'success': false, 'error': 'no customer found'});
+				responses[404](res, 'customer');
 				return;
 			}
 			var acceptableFields = ['customer', 'orderDate', 'isPaid', 'datePaid', 'orderTotal'];
@@ -183,25 +184,25 @@ module.exports = function(router, Customer, Order, Item){
 			mqf.filter(acceptableFields, req.query, function(err, filter){
 				if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 				}
 				if(filter === null){
-					res.status(400).json({'success': false, 'error': 'invalid property or properties in query'});
+					responses[400].invalidQuery(res);
 					return;
 				}
 				filter.customer = customer._id;
 				Order.findWithPopulatedItems(filter, function(err, orders){
 					if(err){
 						console.log(err);
-						res.status(500).json({'success': false, 'error': 'unexpected server error'});
+						responses[500](res);
 						return;
 					}
 					if(!orders[0]){
-						res.status(404).json({'success': false, 'error': 'no order found'});
+						responses[404](res, 'orders');
 						return;
 					}
-					res.status(200).json({'success': true, 'orders': orders});
+					responses[200].payload(200, {'orders': orders});
 				});
 			});
 		});
@@ -214,24 +215,64 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!customer){
-				res.status(404).json({'success': false, 'error': 'no customer found'});
+				responses[404](res, 'customer');
 				return;
 			}
 			Order.findOneWithPopulatedItems(customer._id, orderId, function(err, order){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
 				if(!order){
-					res.status(404).json({'success': false, 'error': 'no order found'});
+					responses[404](res, 'order');
 					return;
 				}
-				res.status(200).json({'success': true, 'order': order});
+				responses[200].payload(res, {'order': order});
+			});
+		});
+	});
+	
+	router.put('/:custId/order/:orderId', function(req, res){
+		var customerId = req.params.custId;
+		var orderId = req.params.orderId;
+		
+		Customer.findOne({custId: customerId}, function(err, customer){
+			if(err){
+				console.log(err);
+				responses[500](res);
+				return;
+			}
+			if(!customer){
+				responses[404](res, 'customer');
+				return;
+			}
+			Order.findOne({orderId: orderId}, function(err, order){
+				if(err){
+					console.log(err);
+					responses[500](res);
+					return;
+				}
+				if(!order){
+					responses[404](res, 'order');
+					return;
+				}
+				if(req.body.customer) {order.customer = req.body.customer}
+				if(req.body.orderDate) {order.orderDate = req.body.orderDate}
+				if(req.body.isPaid && !req.body.datePaid) {order.markAsPaid()}
+				else if(req.body.isPaid) {order.markAsPaid(req.body.datePaid)}
+				order.save(function(err){
+					if(err){
+						console.log(err);
+						responses[500](res);
+						return;
+					}
+					responses[200].noPayload(res);
+				});
 			});
 		});
 	});
@@ -243,20 +284,20 @@ module.exports = function(router, Customer, Order, Item){
 		Customer.findOne({custId: customerId}, function(err, customer){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!customer){
-				res.status(404).json({'success': false, 'error': 'customer not found'});
+				responses[404](res, 'customer');
 				return;
 			}
 			Order.findOneAndRemove({orderId: orderId, customer: customer._id}, function(err){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
-				res.status(200).json({'success': true});
+				responses[200].noPayload(res);
 			});
 		});
 	}); 

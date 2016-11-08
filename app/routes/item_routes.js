@@ -1,4 +1,5 @@
 var mqf = require('../../middleware/mongoose_query_filter.js');
+var responses = require('../../config/json_responses.js');
 
 module.exports = function(router, Item){
 	router.get('/', function(req, res){
@@ -7,24 +8,24 @@ module.exports = function(router, Item){
 		mqf.filter(acceptableFields, req.query, function(err, filter){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(filter === null){
-				res.status(400).json({'success': false, 'error': 'invalid property or properties in query'});
+				responses[400].invalidQuery(res);
 				return;
 			}
 			Item.find(filter, function(err, items){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
 				if(!items[0]){
-					res.status(404).json({'success': false, 'error': 'no items found'});
+					responses[404](res, 'items');
 					return;
 				}
-				res.status(200).json({'success': true, 'items': items});
+				responses[200].payload(res, {'items': items});
 			});
 		});
 	});
@@ -35,14 +36,14 @@ module.exports = function(router, Item){
 		Item.findOne({itemId: itemId}, function(err, item){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!item){
-				res.status(404).json({'success': false, 'error': 'no item found'});
+				responses[404](res, 'item');
 				return;
 			}
-			res.status(200).json({'success': true, 'item': item});
+			responses[200].payload(res, {'item': item});
 		});
 	});
 	
@@ -52,11 +53,11 @@ module.exports = function(router, Item){
 		Item.findOne({itemId: itemId}, function(err, item){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
 			if(!item){
-				res.status(404).json({'success': false, 'error': 'no item found'});
+				responses[404](res, 'item');
 				return;
 			}
 			if(req.body.name) {item.name = req.body.name}
@@ -67,10 +68,10 @@ module.exports = function(router, Item){
 			item.save(function(err){
 				if(err){
 					console.log(err);
-					res.status(500).json({'success': false, 'error': 'unexpected server error'});
+					responses[500](res);
 					return;
 				}
-				res.status(200).json({'success': true});
+				responses[201](res);
 			});
 		});
 	});
@@ -81,10 +82,10 @@ module.exports = function(router, Item){
 		Item.findOneAndRemove({itemId: itemId}, function(err){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
-			res.status(200).json({'success': true});
+			responses[200].noPayload(res);
 		});
 	});
 	
@@ -98,10 +99,10 @@ module.exports = function(router, Item){
 		newItem.save(function(err){
 			if(err){
 				console.log(err);
-				res.status(500).json({'success': false, 'error': 'unexpected server error'});
+				responses[500](res);
 				return;
 			}
-			res.status(201).json({'success': true});
+			responses[201](res);
 		});
 	});
 }
