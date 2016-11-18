@@ -1,3 +1,5 @@
+//I created this so I didn't have to type out status codes AND the corresponding json payloads over and over and over
+
 module.exports = {
 	'200': {
 		noPayload: function(res){
